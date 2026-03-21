@@ -1,5 +1,46 @@
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Your Name</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Work — Franco Venter</title>
+  <meta name="description" content="Work by Franco Venter." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">Franco Venter</a>
+      <nav class="nav">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="about.html">About</a>
+        <a class="nav-link" href="writing.html">Writing</a>
+        <a class="nav-link is-active" href="work.html">Work</a>
+        <a class="nav-link" href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <p class="page-label">Work</p>
+      <h1 class="page-title">Selected work</h1>
+    </section>
+
+    <div class="page-body">
+      <p class="page-note">Work is coming soon.</p>
+    </div>
+
+    <footer class="footer">
+      <p>© <span id="year"></span> Franco Venter • <a href="contact.html">Contact</a></p>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
