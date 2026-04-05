@@ -123,11 +123,11 @@ main {
 /* ─── Hero (home) ─────────────────────────────────────── */
 
 .hero {
-  min-height: calc(100svh - var(--header-h));
+  /* min-height removed — was creating a large gap before Background */
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 64px 0 80px;
+  padding: 64px 0 48px;
   position: relative;
 }
 
