@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Building a Self-Hosted AI Assistant: Nanobot | Franco Venter</title>
+  <meta name="description" content="I built a self-hosted AI assistant called nanobot — a lightweight Python agent accessible via Telegram, running on personal infrastructure with persistent memory." />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="../index.html">Franco Venter</a>
+
+      <nav class="nav">
+        <a class="nav-link" href="../index.html">Home</a>
+        <a class="nav-link" href="../about.html">About</a>
+        <a class="nav-link is-active" href="../writing.html">Writing</a>
+        <a class="nav-link" href="../fun.html">Fun</a>
+        <a class="nav-link" href="../youtube.html">YouTube</a>
+        <a class="nav-link" href="../contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container post-page">
+    <article class="post">
+
+      <p class="post-category">Personal & Ideas</p>
+
+      <h1 class="post-title">Building a Self-Hosted AI Assistant: Nanobot</h1>
+
+      <p class="post-subtitle">
+        I built it. It works. I'm still not sure what to do with it.
+      </p>
+
+      <div class="post-meta">
+        <time datetime="2026-04-13">April 13, 2026</time>
+      </div>
+
+      <div class="post-content">
+
+        <p>
+          I have long wanted to run my own AI assistant but lacked a compelling reason to do so —
+          until I discovered nanobot, a lightweight self-hosted AI agent from the Data Intelligence Lab at HKU.
+          It appeared credible on face value and inspired me to build it myself.
+        </p>
+
+        <h2>The Project: nanobot</h2>
+
+        <p>
+          Nanobot is approximately 4,000 lines of Python code initially inspired by OpenClaw. Key features include:
+        </p>
+
+        <ul>
+          <li>Connects to LLM backends (Claude/ChatGPT via OpenRouter)</li>
+          <li>Self-hosted server operation</li>
+          <li>Telegram/WhatsApp interface for phone accessibility</li>
+          <li>Persistent memory, web search, background agents, and scheduled cron jobs</li>
+        </ul>
+
+        <p>
+          The core concept: AI in your pocket running on personal infrastructure with embedded context.
+        </p>
+
+        <h2>The Build</h2>
+
+        <p>
+          To address privacy concerns about OpenClaw's data access, I deployed a Linux server via Hetzner
+          (~$7/month, located in Norway). The setup involved:
+        </p>
+
+        <ul>
+          <li>Provisioning the Linux server</li>
+          <li>Cloning the nanobot repository with dependencies</li>
+          <li>Configuring the LLM gateway, API keys, and Telegram bot token</li>
+          <li>Running nanobot in a tmux session for persistence</li>
+          <li>Testing via Telegram messaging</li>
+        </ul>
+
+        <h2>Server Options</h2>
+
+        <p>
+          A VPS is essentially a rented Linux computer running 24/7 in the cloud.
+          Hetzner was chosen for simplicity, with minimal monthly maintenance required.
+        </p>
+
+        <h2>Configure the Environment</h2>
+
+        <p>
+          Nanobot requires two primary inputs: an LLM gateway API and a Telegram bot token
+          (easy setup via @BotFather).
+        </p>
+
+        <p>
+          I evaluated four LLM gateway options:
+        </p>
+
+        <ul>
+          <li><strong>OpenRouter</strong> — easiest entry point, 300+ models, consolidated billing with ~5% markup for non-BYOK</li>
+          <li><strong>LiteLLM</strong> — open source, self-hosted, customizable but requires engineering overhead</li>
+          <li><strong>Vercel AI Gateway</strong> — Vercel ecosystem integration, limited otherwise</li>
+          <li><strong>LLM Gateway</strong> — managed infrastructure, 300+ models, no markup with BYOK</li>
+        </ul>
+
+        <p>
+          I initially struggled with LLM Gateway configuration, reverting to OpenRouter
+          (mentioned in nanobot's setup instructions) using BYOK with $5 credit activation.
+          Brave Search integration was recommended for web capabilities, offering $5 monthly credits (~1,000 searches).
+        </p>
+
+        <h2>What It's Actually For</h2>
+
+        <p>
+          The potential use cases that stood out:
+        </p>
+
+        <ul>
+          <li><strong>Daily briefings via cron</strong> — market digests (ASX performance, macro developments, RBA watch) delivered to Telegram at 7am</li>
+          <li><strong>Context-aware advisory</strong> — persistent memory retains context across sessions without re-explanation</li>
+          <li><strong>Background research</strong> — web search scoped to specific engagements; competitive intelligence and market data</li>
+          <li><strong>Drafting and communications</strong> — first drafts, emails, client notes, outreach copy triggered via Telegram</li>
+        </ul>
+
+        <h2>Where I Got Stuck</h2>
+
+        <p>
+          Despite the promise, I identified real barriers to adoption:
+        </p>
+
+        <ul>
+          <li>I won't authorise automated financial transactions</li>
+          <li>It's redundant with existing tools (email drafting, task management, market news)</li>
+          <li>Native LLM research capabilities (Claude, ChatGPT) are already sufficient</li>
+          <li>My non-coder status eliminates code review needs</li>
+        </ul>
+
+        <p>
+          After installation, the weather forecast automation proved impractical ($0.11 API cost on Claude),
+          though cheaper alternatives like GPT-4o mini exist.
+        </p>
+
+        <h2>Real Value Proposition</h2>
+
+        <p>
+          Despite the struggles, three genuine benefits emerged:
+        </p>
+
+        <ul>
+          <li><strong>Persistent memory</strong> — unlike standard Claude, nanobot remembers context across sessions permanently</li>
+          <li><strong>Always-on task capture</strong> — quick Telegram messaging for logging or Todoist integration without app-switching</li>
+          <li><strong>Automation companion</strong> — natural language workflow triggers within existing automation stacks</li>
+        </ul>
+
+        <h2>Closing Thoughts</h2>
+
+        <p>
+          Building a self-hosted AI assistant accessible 24/7 from a phone with personal context integration
+          proved genuinely interesting. But it also surfaced a broader AI adoption challenge:
+          without a pre-identified painful problem, tools remain hobby projects rather than integrated solutions.
+        </p>
+
+      </div>
+    </article>
+
+    <section class="post-cta">
+      <h2>Source</h2>
+      <p>
+        This piece was originally published on Substack.
+      </p>
+      <a class="button" href="https://franventer.substack.com/p/building-a-self-hosted-ai-assistant" target="_blank" rel="noopener noreferrer">
+        Read on Substack
+      </a>
+    </section>
+
+    <footer class="post-footer">
+      <p>
+        <a href="../writing.html">← Back to Writing</a>
+      </p>
+    </footer>
+
+  </main>
+</body>
+</html>
