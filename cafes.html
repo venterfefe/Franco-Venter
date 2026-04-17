@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cafe Tracker — Franco Venter</title>
+  <meta name="description" content="Franco Venter's personal cafe tracker — Sydney cafes worth visiting." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Tokens ─────────────────────────────────────────── */
+    :root {
+      --ivory:        #F6F3EC;
+      --ink:          #1A1714;
+      --gold:         #9B8B72;
+      --muted:        #8A8278;
+      --border:       rgba(26, 23, 20, 0.13);
+      --border-solid: #DDD9D1;
+      --ease:         cubic-bezier(0.4, 0, 0.2, 1);
+      --pin-return:   #534AB7;
+      --pin-no:       #888780;
+      --sidebar-w:    300px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body {
+      background: var(--ivory);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, 'Helvetica Neue', sans-serif;
+      font-weight: 300;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Header ─────────────────────────────────────────── */
+    .site-header {
+      flex-shrink: 0;
+      border-bottom: 0.5px solid var(--border-solid);
+      background: var(--ivory);
+      z-index: 100;
+    }
+
+    .site-header .inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 54px;
+    }
+
+    .site-logo {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+    }
+
+    .site-nav {
+      display: flex;
+      gap: 28px;
+    }
+
+    .site-nav a {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s var(--ease);
+    }
+
+    .site-nav a:hover,
+    .site-nav a.active { color: var(--ink); }
+
+    /* ─── Layout ─────────────────────────────────────────── */
+    .app {
+      flex: 1;
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ────────────────────────────────────────── */
+    .sidebar {
+      border-right: 0.5px solid var(--border-solid);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--ivory);
+    }
+
+    .sidebar-head {
+      flex-shrink: 0;
+      padding: 20px 20px 0;
+      border-bottom: 0.5px solid var(--border-solid);
+      padding-bottom: 16px;
+    }
+
+    .sidebar-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: 0.01em;
+      margin-bottom: 3px;
+    }
+
+    .sidebar-count {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+    }
+
+    /* Filter pills */
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 50px;
+      border: 0.5px solid var(--border-solid);
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s var(--ease);
+      white-space: nowrap;
+    }
+
+    .pill:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .pill.active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--ivory);
+    }
+
+    /* Cafe list */
+    .cafe-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .cafe-list::-webkit-scrollbar { width: 3px; }
+    .cafe-list::-webkit-scrollbar-thumb { background: var(--border-solid); border-radius: 2px; }
+
+    .cafe-card {
+      padding: 13px 20px;
+      cursor: pointer;
+      border-bottom: 0.5px solid rgba(26,23,20,0.06);
+      transition: background 0.15s var(--ease);
+    }
+
+    .cafe-card:hover { background: rgba(26,23,20,0.03); }
+    .cafe-card.selected { background: rgba(83,74,183,0.06); }
+
+    .cafe-card-name {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cafe-card-suburb {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .cafe-card-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stars {
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 7px;
+      border-radius: 50px;
+      border: 0.5px solid var(--border-solid);
+      font-size: 9px;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: transparent;
+    }
+
+    /* ─── Map area ───────────────────────────────────────── */
+    .map-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ─── Detail card ────────────────────────────────────── */
+    .detail-card {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      width: 260px;
+      background: var(--ivory);
+      border: 0.5px solid var(--border-solid);
+      padding: 18px 20px;
+      box-shadow: 0 8px 32px rgba(26,23,20,0.12);
+      animation: slideIn 0.22s var(--ease);
+      z-index: 10;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .detail-card.hidden { display: none; }
+
+    .detail-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1;
+      padding: 2px;
+    }
+
+    .detail-close:hover { color: var(--ink); }
+
+    .detail-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 19px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 2px;
+      padding-right: 20px;
+      line-height: 1.2;
+    }
+
+    .detail-suburb {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.03em;
+    }
+
+    .detail-score-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .detail-score-num {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--ink);
+    }
+
+    .detail-score-denom {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .detail-stars {
+      font-size: 13px;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .detail-notes {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 12px;
+      font-weight: 300;
+    }
+
+    .return-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 50px;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      font-weight: 400;
+    }
+
+    .return-badge.yes {
+      background: rgba(83,74,183,0.1);
+      color: var(--pin-return);
+      border: 0.5px solid rgba(83,74,183,0.25);
+    }
+
+    .return-badge.no {
+      background: rgba(136,135,128,0.1);
+      color: var(--pin-no);
+      border: 0.5px solid rgba(136,135,128,0.3);
+    }
+
+    .return-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ─── Loading / error states ─────────────────────────── */
+    .map-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-align: center;
+      z-index: 5;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ─── Header ──────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="inner">
+      <a href="index.html" class="site-logo">Franco Venter</a>
+      <nav class="site-nav">
+        <a href="index.html">About</a>
+        <a href="work.html">Work</a>
+        <a href="writing.html">Writing</a>
+        <a href="fun.html" class="active">Fun</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ─── App shell ────────────────────────────────────── -->
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-title">Cafe tracker</div>
+        <div class="sidebar-count" id="cafe-count">Loading…</div>
+        <div class="filter-pills" id="filter-pills"></div>
+      </div>
+      <div class="cafe-list" id="cafe-list"></div>
+    </aside>
+
+    <!-- Map -->
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="map-message" id="map-message">Loading cafes…</div>
+
+      <!-- Detail card -->
+      <div class="detail-card hidden" id="detail-card">
+        <button class="detail-close" id="detail-close" aria-label="Close">✕</button>
+        <div class="detail-name" id="d-name"></div>
+        <div class="detail-suburb" id="d-suburb"></div>
+        <div class="detail-score-row">
+          <span class="detail-score-num" id="d-score"></span>
+          <span class="detail-score-denom">/ 5</span>
+          <span class="detail-stars" id="d-stars"></span>
+        </div>
+        <div class="detail-notes" id="d-notes"></div>
+        <span class="return-badge" id="d-badge">
+          <span class="return-dot"></span>
+          <span id="d-badge-text"></span>
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ─── Config ──────────────────────────────────────────── */
+    const SHEET_URL   = 'YOUR_GOOGLE_SHEET_CSV_URL';
+    const MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
+
+    /* ─── State ───────────────────────────────────────────── */
+    let allCafes      = [];
+    let filteredCafes = [];
+    let markers       = [];
+    let map           = null;
+    let selectedIdx   = null;
+    let activeArea    = 'All';
+
+    /* ─── CSV parser ──────────────────────────────────────── */
+    function parseCSV(text) {
+      const lines  = text.trim().split('\n');
+      const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const rows   = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = splitCSVLine(lines[i]);
+        if (cols.length < 2) continue;
+        const obj = {};
+        header.forEach((h, j) => { obj[h] = (cols[j] || '').trim(); });
+        rows.push(obj);
+      }
+      return rows;
+    }
+
+    function splitCSVLine(line) {
+      const cols   = [];
+      let cur      = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+          else { inQuotes = !inQuotes; }
+        } else if (ch === ',' && !inQuotes) {
+          cols.push(cur); cur = '';
+        } else {
+          cur += ch;
+        }
+      }
+      cols.push(cur);
+      return cols;
+    }
+
+    /* ─── Stars helper ────────────────────────────────────── */
+    function starsHTML(rating) {
+      const n     = Math.round(parseFloat(rating) || 0);
+      const total = 5;
+      return '★'.repeat(n) + '☆'.repeat(Math.max(0, total - n));
+    }
+
+    /* ─── Render sidebar list ─────────────────────────────── */
+    function renderList(cafes) {
+      const list = document.getElementById('cafe-list');
+      list.innerHTML = '';
+
+      cafes.forEach((cafe, i) => {
+        const card = document.createElement('div');
+        card.className = 'cafe-card' + (selectedIdx === i ? ' selected' : '');
+        card.dataset.index = i;
+
+        const tags = (cafe.tags || '').split(';').map(t => t.trim()).filter(Boolean);
+        const tagHTML = tags.map(t => `<span class="tag-pill">${t}</span>`).join('');
+
+        card.innerHTML = `
+          <div class="cafe-card-name">${cafe.name || '—'}</div>
+          <div class="cafe-card-suburb">${cafe.suburb || ''}</div>
+          <div class="cafe-card-footer">
+            <span class="stars">${starsHTML(cafe.rating)}</span>
+            ${tagHTML}
+          </div>
+        `;
+
+        card.addEventListener('click', () => selectCafe(i));
+        list.appendChild(card);
+      });
+    }
+
+    /* ─── Render filter pills ─────────────────────────────── */
+    function renderPills(cafes) {
+      const areas = ['All', ...new Set(cafes.map(c => c.area).filter(Boolean).sort())];
+      const wrap  = document.getElementById('filter-pills');
+      wrap.innerHTML = '';
+
+      areas.forEach(area => {
+        const btn = document.createElement('button');
+        btn.className = 'pill' + (area === activeArea ? ' active' : '');
+        btn.textContent = area;
+        btn.addEventListener('click', () => {
+          activeArea = area;
+          applyFilter();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    /* ─── Apply area filter ───────────────────────────────── */
+    function applyFilter() {
+      filteredCafes = activeArea === 'All'
+        ? allCafes
+        : allCafes.filter(c => c.area === activeArea);
+
+      selectedIdx = null;
+      hideDetail();
+      renderList(filteredCafes);
+      updateMarkers();
+
+      document.querySelectorAll('.pill').forEach(p => {
+        p.classList.toggle('active', p.textContent === activeArea);
+      });
+
+      document.getElementById('cafe-count').textContent =
+        `${filteredCafes.length} cafe${filteredCafes.length !== 1 ? 's' : ''}`;
+    }
+
+    /* ─── Select a cafe ───────────────────────────────────── */
+    function selectCafe(idx) {
+      selectedIdx = idx;
+      const cafe  = filteredCafes[idx];
+
+      /* Highlight list card */
+      document.querySelectorAll('.cafe-card').forEach((el, i) => {
+        el.classList.toggle('selected', i === idx);
+      });
+
+      /* Pan map */
+      if (map && cafe.lat && cafe.lng) {
+        map.panTo({ lat: parseFloat(cafe.lat), lng: parseFloat(cafe.lng) });
+      }
+
+      showDetail(cafe);
+
+      /* Scroll card into view */
+      const card = document.querySelector(`.cafe-card[data-index="${idx}"]`);
+      if (card) card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    /* ─── Detail card ─────────────────────────────────────── */
+    function showDetail(cafe) {
+      const el      = document.getElementById('detail-card');
+      const returns = (cafe.would_return || '').toLowerCase();
+      const yes     = returns === 'yes' || returns === 'true' || returns === '1';
+
+      document.getElementById('d-name').textContent   = cafe.name    || '—';
+      document.getElementById('d-suburb').textContent = cafe.suburb  || '';
+      document.getElementById('d-score').textContent  = cafe.rating  || '—';
+      document.getElementById('d-stars').textContent  = starsHTML(cafe.rating);
+      document.getElementById('d-notes').textContent  = cafe.notes   || '';
+
+      const badge     = document.getElementById('d-badge');
+      const badgeTxt  = document.getElementById('d-badge-text');
+      badge.className = 'return-badge ' + (yes ? 'yes' : 'no');
+      badgeTxt.textContent = yes ? 'Would return' : 'Not returning';
+
+      el.classList.remove('hidden');
+    }
+
+    function hideDetail() {
+      document.getElementById('detail-card').classList.add('hidden');
+    }
+
+    document.getElementById('detail-close').addEventListener('click', () => {
+      hideDetail();
+      selectedIdx = null;
+      document.querySelectorAll('.cafe-card').forEach(c => c.classList.remove('selected'));
+    });
+
+    /* ─── Markers ─────────────────────────────────────────── */
+    function updateMarkers() {
+      markers.forEach(m => m.setMap(null));
+      markers = [];
+      if (!map) return;
+
+      filteredCafes.forEach((cafe, i) => {
+        const lat = parseFloat(cafe.lat);
+        const lng = parseFloat(cafe.lng);
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        const returns = (cafe.would_return || '').toLowerCase();
+        const yes     = returns === 'yes' || returns === 'true' || returns === '1';
+        const color   = yes ? '#534AB7' : '#888780';
+
+        const marker = new google.maps.Marker({
+          position: { lat, lng },
+          map,
+          title: cafe.name,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillColor: color,
+            fillOpacity: 1,
+            strokeColor: '#fff',
+            strokeWeight: 1.5,
+            scale: 7,
+          },
+        });
+
+        marker.addListener('click', () => selectCafe(i));
+        markers.push(marker);
+      });
+    }
+
+    /* ─── Fetch & parse CSV ───────────────────────────────── */
+    async function loadCafes() {
+      const msgEl = document.getElementById('map-message');
+
+      if (SHEET_URL === 'YOUR_GOOGLE_SHEET_CSV_URL') {
+        msgEl.textContent = 'Add your Google Sheet CSV URL to SHEET_URL to load cafes.';
+        document.getElementById('cafe-count').textContent = '0 cafes';
+        return;
+      }
+
+      try {
+        const res  = await fetch(SHEET_URL);
+        const text = await res.text();
+        allCafes   = parseCSV(text);
+
+        renderPills(allCafes);
+        filteredCafes = allCafes;
+        document.getElementById('cafe-count').textContent =
+          `${allCafes.length} cafe${allCafes.length !== 1 ? 's' : ''}`;
+        renderList(filteredCafes);
+        msgEl.style.display = 'none';
+
+        if (map) updateMarkers();
+      } catch (err) {
+        msgEl.textContent = 'Could not load cafe data. Check the sheet URL and CORS settings.';
+        console.error(err);
+      }
+    }
+
+    /* ─── Init Google Maps ────────────────────────────────── */
+    window.initMap = function () {
+      const mapEl = document.getElementById('map');
+
+      map = new google.maps.Map(mapEl, {
+        center:            { lat: -33.8688, lng: 151.2093 },
+        zoom:              13,
+        disableDefaultUI:  true,
+        zoomControl:       true,
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_BOTTOM,
+        },
+        styles: [
+          { elementType: 'geometry',        stylers: [{ color: '#F0EDE6' }] },
+          { elementType: 'labels.text.fill',stylers: [{ color: '#8A8278' }] },
+          { elementType: 'labels.text.stroke',stylers:[{ color: '#F6F3EC' }] },
+          { featureType: 'road',            elementType: 'geometry',      stylers: [{ color: '#E4E0D8' }] },
+          { featureType: 'road',            elementType: 'labels.text.fill', stylers: [{ color: '#B0AA9E' }] },
+          { featureType: 'water',           elementType: 'geometry',      stylers: [{ color: '#C8D8E8' }] },
+          { featureType: 'water',           elementType: 'labels.text.fill', stylers: [{ color: '#9AAABB' }] },
+          { featureType: 'poi',             stylers: [{ visibility: 'off' }] },
+          { featureType: 'transit',         stylers: [{ visibility: 'off' }] },
+          { featureType: 'administrative',  elementType: 'geometry',      stylers: [{ visibility: 'off' }] },
+          { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
+        ],
+      });
+
+      if (filteredCafes.length) updateMarkers();
+    };
+
+    /* ─── Load Maps script ────────────────────────────────── */
+    function loadMaps() {
+      if (MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') {
+        document.getElementById('map-message').textContent =
+          'Add your Google Maps API key to MAPS_API_KEY to show the map.';
+        return;
+      }
+      const s   = document.createElement('script');
+      s.src     = `https://maps.googleapis.com/maps/api/js?key=${MAPS_API_KEY}&callback=initMap`;
+      s.async   = true;
+      s.defer   = true;
+      document.head.appendChild(s);
+    }
+
+    /* ─── Boot ────────────────────────────────────────────── */
+    loadCafes();
+    loadMaps();
+  </script>
+
+</body>
+</html>
