@@ -420,8 +420,8 @@
 
   <script>
     /* ─── Config ──────────────────────────────────────────── */
-    const SHEET_URL   = 'YOUR_GOOGLE_SHEET_CSV_URL';
-    const MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
+    const SHEET_URL   = 'https://docs.google.com/spreadsheets/d/1LK-UQX7frNhSK1lzIE7m5VlaWnUVkEjDzEtxStb-vfE/edit?gid=0#gid=0';
+    const MAPS_API_KEY = 'AIzaSyBboG76q8DY0yYHWe9Tu7BGRRq0ZGiWh1c';
 
     /* ─── State ───────────────────────────────────────────── */
     let allCafes      = [];
@@ -628,7 +628,7 @@
     async function loadCafes() {
       const msgEl = document.getElementById('map-message');
 
-      if (SHEET_URL === 'YOUR_GOOGLE_SHEET_CSV_URL') {
+      if (SHEET_URL === 'https://docs.google.com/spreadsheets/d/1LK-UQX7frNhSK1lzIE7m5VlaWnUVkEjDzEtxStb-vfE/edit?gid=0#gid=0') {
         msgEl.textContent = 'Add your Google Sheet CSV URL to SHEET_URL to load cafes.';
         document.getElementById('cafe-count').textContent = '0 cafes';
         return;
@@ -685,7 +685,7 @@
 
     /* ─── Load Maps script ────────────────────────────────── */
     function loadMaps() {
-      if (MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') {
+      if (MAPS_API_KEY === 'AIzaSyBboG76q8DY0yYHWe9Tu7BGRRq0ZGiWh1c') {
         document.getElementById('map-message').textContent =
           'Add your Google Maps API key to MAPS_API_KEY to show the map.';
         return;
