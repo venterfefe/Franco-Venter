@@ -391,6 +391,7 @@
         <div class="sidebar-title">Cafe tracker</div>
         <div class="sidebar-count" id="cafe-count">Loading…</div>
         <div class="filter-pills" id="filter-pills"></div>
+        <div class="filter-pills" id="rating-pills" style="margin-top:6px"></div>
       </div>
       <div class="cafe-list" id="cafe-list"></div>
     </aside>
@@ -432,6 +433,7 @@
     let map           = null;
     let selectedIdx   = null;
     let activeArea    = 'All';
+    let activeRating  = 'All';
 
     /* ─── CSV parser ──────────────────────────────────────── */
     function parseCSV(text) {
@@ -521,19 +523,48 @@
       });
     }
 
-    /* ─── Apply area filter ───────────────────────────────── */
+    /* ─── Render rating pills ────────────────────────────────── */
+    function renderRatingPills() {
+      const options = ['All', '3★+', '4★+', '5★'];
+      const wrap    = document.getElementById('rating-pills');
+      wrap.innerHTML = '';
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'pill' + (opt === activeRating ? ' active' : '');
+        btn.textContent = opt;
+        btn.dataset.ratingPill = opt;
+        btn.addEventListener('click', () => {
+          activeRating = opt;
+          applyFilter();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    /* ─── Apply filters ───────────────────────────────────── */
     function applyFilter() {
-      filteredCafes = activeArea === 'All'
-        ? allCafes
-        : allCafes.filter(c => c.area === activeArea);
+      filteredCafes = allCafes.filter(c => {
+        const areaMatch   = activeArea === 'All' || c.area === activeArea;
+        const rating      = parseFloat(c.rating) || 0;
+        const ratingMatch = activeRating === 'All'  ? true
+                          : activeRating === '3★+'  ? rating >= 3
+                          : activeRating === '4★+'  ? rating >= 4
+                          : activeRating === '5★'   ? rating >= 5
+                          : true;
+        return areaMatch && ratingMatch;
+      });
 
       selectedIdx = null;
       hideDetail();
       renderList(filteredCafes);
       updateMarkers();
 
-      document.querySelectorAll('.pill').forEach(p => {
+      document.querySelectorAll('#filter-pills .pill').forEach(p => {
         p.classList.toggle('active', p.textContent === activeArea);
+      });
+      document.querySelectorAll('#rating-pills .pill').forEach(p => {
+        p.classList.toggle('active', p.dataset.ratingPill === activeRating);
       });
 
       document.getElementById('cafe-count').textContent =
@@ -636,6 +667,7 @@
         allCafes   = parseCSV(text);
 
         renderPills(allCafes);
+        renderRatingPills();
         filteredCafes = allCafes;
         document.getElementById('cafe-count').textContent =
           `${allCafes.length} cafe${allCafes.length !== 1 ? 's' : ''}`;
